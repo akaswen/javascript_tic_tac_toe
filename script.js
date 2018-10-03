@@ -39,11 +39,13 @@ const board = (() => {
     const endGame = winner => {
         board.removeEventListener('click', game.makeMove);
         let heading = document.createElement('H1');
-        let container = document.querySelector('div.container');
+        let container = document.getElementById('info');
         if (winner) {
-            heading.textContent = winner.name;
+            heading.textContent = winner.name + " wins!";
+            heading.classList.add('text-success');
         } else {
             heading.textContent = "Cat's game...";
+            heading.classList.add('text-danger');
         }
         container.appendChild(heading);
     };
@@ -76,12 +78,11 @@ const game = (() => {
 
     const postTurn = () => {
         currentTurn.number ++;
-        checkForDraw();
-        console.log(board.checkEndGame());
         if (board.checkEndGame()) {
             winner = currentTurn.player;
             board.endGame(winner); 
         } else {
+            checkForDraw();
             currentTurn.toggle();
         }
     };
@@ -93,7 +94,6 @@ const game = (() => {
             board.draw(symbol, square);
             postTurn();
         }
-
     };
 
     const start = () => {
@@ -102,6 +102,5 @@ const game = (() => {
                 
     return {start, makeMove};
 })();
-
 
 game.start();
