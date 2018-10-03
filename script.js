@@ -10,14 +10,21 @@ const board = (() => {
         boardArray = [];
         for (i=0; i<9; i++) {
             boardArray.push(undefined);
+            document.getElementById(i).textContent = "";
         }
+        document.getElementById('line').style.visibility = 'hidden';
+        let message = document.querySelector('#info h1')
+        if (message) { message.remove(); }
         board.addEventListener('click', game.makeMove);
     };
 
     const draw = (symbol, square) => {
         let index = square.id
+        let image = document.createElement('IMG');
         boardArray[index] = symbol;
-        square.textContent = symbol;
+        image.setAttribute('src', `assets/${symbol}.png`);
+        square.appendChild(image);
+        console.log(boardArray);
     };
 
     const drawLine = array => {
@@ -93,13 +100,14 @@ const board = (() => {
     return {init, draw, checkEndGame, endGame, board};
 })();
 
-const game = (() => {
+const game = ( () => {
     let winner;
-    let player1 = player('name', 'X');
-    let player2 = player('other name', 'O');
+    let player1;
+    let player2;
+    let ai = false;
     let currentTurn = {
         number: 1,
-        player: player1,
+        player: undefined,
 
         toggle: () => {
             if (currentTurn.player === player1) {
@@ -123,7 +131,11 @@ const game = (() => {
             board.endGame(winner); 
         } else {
             checkForDraw();
+            if (ai) {
+                //computer's move
+            } else {
             currentTurn.toggle();
+            }
         }
     };
 
@@ -138,9 +150,18 @@ const game = (() => {
 
     const start = () => {
         board.init();
+        player1 = player(prompt('Please enter your name'), 'X');
+        player2 = player(prompt('Player 2, please enter your name'), 'O');
+        winner = undefined;
+        currentTurn.number = 1;
+        currentTurn.player = player1;
     };
                 
-    return {start, makeMove};
+    return {start, makeMove, player1};
+    
 })();
 
-game.start();
+let button = document.querySelector('button');
+
+button.addEventListener('click', game.start);
+

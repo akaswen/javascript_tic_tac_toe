@@ -1,10 +1,15 @@
 .row {
-    min-height: 100px;
+    height: 100px;
 }
 
 #board {
     width: 350px;
     position: relative;
+    margin: 0 auto;
+}
+
+#game {
+    min-width: 380px;
 }
 
 #line {
@@ -12,6 +17,12 @@
     width: 300px;
     left: 25px;
     top: 50px;
-    border: 5px solid rgba(140, 247, 0, 0.5);
+    border: 5px solid rgb(140, 247, 0);
     visibility: hidden;
+    z-index: 10;
+}
+
+img {
+    padding-top: 5px;
+    height: 90px;
 }
