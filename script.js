@@ -20,6 +20,46 @@ const board = (() => {
         square.textContent = symbol;
     };
 
+    const drawLine = array => {
+        let line = document.getElementById('line');
+        line.style.visibility = 'visible';
+        const drawVertical = (left) => {
+            line.style.transform = 'rotate(90deg)';
+            line.style.top = '140px';
+            line.style.left = left;
+        };
+        const drawHorizontal = (transform) => {
+            line.style.left = '20px';
+            line.style.top = '140px';
+            line.style.transform = transform;
+        };
+        switch(array.join()) {
+            case "3,4,5":
+                line.style.top = '140px'; 
+                break;
+            case "6,7,8":
+                line.style.top = '240px';
+                break;
+            case "0,3,6":
+                drawVertical('-95px');
+                break;
+            case "1,4,7":
+                drawVertical('25px');
+                break;
+            case "2,5,8":
+                drawVertical('150px');
+                break;
+            case "0,4,8":
+                drawHorizontal('rotate(40deg)');
+                break;
+            case "2,4,6":
+                drawHorizontal('rotate(-40deg)');
+                break;
+            default:
+                break;
+        }
+    };
+
     const checkEndGame = () => {
         let winPositions = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
         let gameOver = false;
@@ -29,7 +69,7 @@ const board = (() => {
                 values.push(boardArray[n]);
             });
             if (values.every(x => x === 'X') || values.every(x => x === 'O')) {
-                //drawLine(array);
+                drawLine(array);
                 gameOver = true;
             }
         });
