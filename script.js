@@ -2,10 +2,11 @@ const Player = (name, symbol) => {
     return {name, symbol};
 };
 
-const Computer = () => {
+const Computer = (difficulty) => {
+
     const {name, symbol} = Player('The Computer', 'O');;
 
-    const makeMove = (board) => {
+    const makeRandomMove = (board) => {
         possibleMoves = [];
         board.boardArray.forEach((square, index) => {
             if (!square) {
@@ -16,6 +17,15 @@ const Computer = () => {
         let square = document.getElementById(number);
         board.draw(symbol, square);
     };
+
+    const makeMove = (board) => {
+        if (difficulty === "easy") {
+            makeRandomMove(board);
+        } else {
+            miniMax(board);
+        }
+    };
+
     return {name, symbol, makeMove};
 };
 
@@ -141,7 +151,7 @@ const game = ( () => {
 
     const postTurn = () => {
         currentTurn.number ++;
-        line = checkEndGame(newBoard.boardArray)
+        line = checkEndGame(newBoard.boardArray);
         if (line) {
             newBoard.drawLine(line);
             winner = currentTurn.player;
@@ -149,7 +159,16 @@ const game = ( () => {
         } else {
             checkForDraw();
             if (ai) {
+                currentTurn.toggle();
                 player2.makeMove(newBoard);
+                currentTurn.number++;
+                line = checkEndGame(newBoard.boardArray);
+                if (line) {
+                    newBoard.drawLine(line);
+                    winner = currentTurn.player;
+                    newBoard.finishBoard(winner); 
+                }
+                currentTurn.toggle();
             } else {
             currentTurn.toggle();
             }
@@ -178,7 +197,7 @@ const game = ( () => {
             player1 = Player(prompt('Please enter your name'), 'X');
             if (button.id === 'one-player') {
                 ai = true;
-                player2 = Computer();
+                player2 = Computer(button.getAttribute('difficulty'));
             } else {
                 player2 = Player(prompt('Player 2, please enter your name'), 'O');
             }
