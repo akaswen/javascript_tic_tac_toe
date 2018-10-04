@@ -18,11 +18,67 @@ const Computer = (difficulty) => {
         board.draw(symbol, square);
     };
 
-    const makeMove = (board) => {
+    const getPossibleMoves = (board) => {
+        let possibleMoves = [];
+        board.forEach((square, index) => {
+            if (!square) {
+                let move = { index, score: 0 };
+                possibleMoves.push(move);
+            }
+        });
+        return possibleMoves;
+    };
+
+    const score = (move, board, player, opponent, turn) => {
+        let score = 0;
+
+        board[move.index] = player.symbol;
+        turn++;
+        
+        if (game.checkEndGame(board)) {
+            score += 10;
+        }
+
+        return score;
+    };
+
+    const findBestMove = (board, player, opponent, turn) => {
+        let bestMove;
+        let possibleMoves = getPossibleMoves(board);
+
+        possibleMoves.forEach((move) => {
+            let sampleBoard = board.slice(0);
+            move.score += score(move, sampleBoard, player, opponent, turn);
+        });
+
+        possibleMoves.forEach((move) => {
+            if (!bestMove) {
+                bestMove = move;
+            } else {
+                if (bestMove.score < move.score) {
+                    bestMove = move;
+                }
+            }
+        });
+
+        //console.log(possibleMoves);
+
+        return bestMove;
+    };
+
+    const makeHardMove = (board, player, opponent, turn) => {
+        let moveIndex = findBestMove(board, player, opponent, turn);
+        console.log('final move choice');
+        console.log(moveIndex);
+        //let square = document.getElementById(moveIndex);
+        //board.draw(symbol,square);
+    };
+
+    const makeMove = (board, player, opponent, turn) => {
         if (difficulty === "easy") {
             makeRandomMove(board);
         } else {
-            miniMax(board);
+            makeHardMove(board.boardArray, player, opponent, turn);
         }
     };
 
@@ -143,9 +199,11 @@ const game = ( () => {
         return gameOver;
     };
 
-    const checkForDraw = () => {
-        if (currentTurn.number > 9) {
-            newBoard.finishBoard(winner);
+    const checkForDraw = (turnNumber) => {
+        if (turnNumber > 9) {
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -157,20 +215,23 @@ const game = ( () => {
             winner = currentTurn.player;
             newBoard.finishBoard(winner); 
         } else {
-            checkForDraw();
-            if (ai) {
-                currentTurn.toggle();
-                player2.makeMove(newBoard);
-                currentTurn.number++;
-                line = checkEndGame(newBoard.boardArray);
-                if (line) {
-                    newBoard.drawLine(line);
-                    winner = currentTurn.player;
-                    newBoard.finishBoard(winner); 
-                }
-                currentTurn.toggle();
+            if (checkForDraw(currentTurn.number)) {
+            newBoard.finishBoard(winner);
             } else {
-            currentTurn.toggle();
+                if (ai) {
+                    currentTurn.toggle();
+                    player2.makeMove(newBoard, player2, player1, currentTurn.number);
+                    currentTurn.number++;
+                    line = checkEndGame(newBoard.boardArray);
+                    if (line) {
+                        newBoard.drawLine(line);
+                        winner = currentTurn.player;
+                        newBoard.finishBoard(winner); 
+                    }
+                    currentTurn.toggle();
+                } else {
+                currentTurn.toggle();
+                }
             }
         }
     };
@@ -182,6 +243,21 @@ const game = ( () => {
             newBoard.draw(symbol, square);
             postTurn();
         }
+    };
+
+    const debugMakeMoveWithComputerNext = (number) => {
+        let square = document.getElementById(number);
+        let symbol = currentTurn.player.symbol;
+            newBoard.draw(symbol, square);
+            postTurn();
+    }
+
+    const debugMakeMove = (number) => {
+        let square = document.getElementById(number);
+        let symbol = currentTurn.player.symbol;
+        newBoard.draw(symbol, square);
+        currentTurn.number++;
+        currentTurn.toggle();
     };
 
     const start = (e) => {
@@ -206,12 +282,35 @@ const game = ( () => {
             currentTurn.player = player1;
         }
     };
-                
-    return {start, makeMove, player1, newBoard};
+    
+    const debugstart = () => {
+            newBoard = Board();
+            newBoard.init();
+            player1 = Player('a', 'X');
+            ai = true;
+            player2 = Computer('hard');
+            winner = undefined;
+            currentTurn.number = 1;
+            currentTurn.player = player1;
+    };
+               
+    return {start, makeMove, player1, newBoard, checkEndGame, checkForDraw, debugstart, debugMakeMove, debugMakeMoveWithComputerNext};
     
 })();
 
-let button = document.querySelector('#info .row');
+//let button = document.querySelector('#info .row');
 
-button.addEventListener('click', game.start);
+//button.addEventListener('click', game.start);
+
+game.debugstart();
+
+game.debugMakeMove(8);
+game.debugMakeMove(0);
+game.debugMakeMove(7);
+game.debugMakeMove(1);
+game.debugMakeMove(2);
+game.debugMakeMove(5);
+
+
+game.debugMakeMoveWithComputerNext(3);
 
