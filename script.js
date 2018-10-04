@@ -127,7 +127,6 @@ const game = ( () => {
                 values.push(boardArray[n]);
             });
             if (values.every(x => x === 'X') || values.every(x => x === 'O')) {
-                console.log(array);
                 gameOver = array;
             }
         });
@@ -168,7 +167,12 @@ const game = ( () => {
 
     const start = (e) => {
         let button = e.target;
+        let oldButton = document.querySelector('.active');
         if (button.tagName === 'BUTTON') {
+            if (oldButton) {
+                oldButton.classList.remove('active');
+            }
+            button.classList.add('active');
             newBoard = Board();
             newBoard.init();
             player1 = Player(prompt('Please enter your name'), 'X');
