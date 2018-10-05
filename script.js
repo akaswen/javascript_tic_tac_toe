@@ -31,9 +31,7 @@ const Computer = (difficulty) => {
 
     const score = (move, board, player, opponent, turn) => {
         let score = 0;
-
         board[move.index] = player.symbol;
-        turn++;
         
         if (game.checkEndGame(board)) {
             score += 10;
@@ -48,10 +46,32 @@ const Computer = (difficulty) => {
 
         possibleMoves.forEach((move) => {
             let sampleBoard = board.slice(0);
-            move.score += score(move, sampleBoard, player, opponent, turn);
+            move.score += score(move, sampleBoard, player, opponent, i);
+
+            for (i = turn + 1; i < 10; i++) {
+                let opponentMove = findBestMove(sampleBoard, opponent, player, i);
+                move.score -= opponentMove.score
+                i++;
+                if (i > 9) {
+                    break;
+                }
+                let nextMove = findBestMove(sampleBoard, player, opponent, i);
+                move.score += nextMove;
+            }
         });
 
+        let randomPossibleMoves = [];
+
         possibleMoves.forEach((move) => {
+            let randomNumber = Math.random() * 10;
+            if (randomNumber > 5) {
+                randomPossibleMoves.unshift(move);
+            } else {
+                randomPossibleMoves.push(move);
+            }
+        });
+
+        randomPossibleMoves.forEach((move) => {
             if (!bestMove) {
                 bestMove = move;
             } else {
@@ -61,24 +81,21 @@ const Computer = (difficulty) => {
             }
         });
 
-        //console.log(possibleMoves);
-
         return bestMove;
     };
 
     const makeHardMove = (board, player, opponent, turn) => {
-        let moveIndex = findBestMove(board, player, opponent, turn);
-        console.log('final move choice');
-        console.log(moveIndex);
-        //let square = document.getElementById(moveIndex);
-        //board.draw(symbol,square);
+        let move = findBestMove(board.boardArray, player, opponent, turn);
+        let moveIndex = move.index;
+        let square = document.getElementById(moveIndex);
+        board.draw(symbol,square);
     };
 
     const makeMove = (board, player, opponent, turn) => {
         if (difficulty === "easy") {
             makeRandomMove(board);
         } else {
-            makeHardMove(board.boardArray, player, opponent, turn);
+            makeHardMove(board, player, opponent, turn);
         }
     };
 
@@ -238,26 +255,12 @@ const game = ( () => {
 
     const makeMove = (e) => {
         let square = e.target;
-        if (square.textContent === "") {
+        console.log(square.tagName);
+        if (square.textContent === "" && !(square.tagName === 'IMG')) {
             let symbol = currentTurn.player.symbol;
             newBoard.draw(symbol, square);
             postTurn();
         }
-    };
-
-    const debugMakeMoveWithComputerNext = (number) => {
-        let square = document.getElementById(number);
-        let symbol = currentTurn.player.symbol;
-            newBoard.draw(symbol, square);
-            postTurn();
-    }
-
-    const debugMakeMove = (number) => {
-        let square = document.getElementById(number);
-        let symbol = currentTurn.player.symbol;
-        newBoard.draw(symbol, square);
-        currentTurn.number++;
-        currentTurn.toggle();
     };
 
     const start = (e) => {
@@ -283,34 +286,10 @@ const game = ( () => {
         }
     };
     
-    const debugstart = () => {
-            newBoard = Board();
-            newBoard.init();
-            player1 = Player('a', 'X');
-            ai = true;
-            player2 = Computer('hard');
-            winner = undefined;
-            currentTurn.number = 1;
-            currentTurn.player = player1;
-    };
-               
-    return {start, makeMove, player1, newBoard, checkEndGame, checkForDraw, debugstart, debugMakeMove, debugMakeMoveWithComputerNext};
+    return {start, makeMove, player1, newBoard, checkEndGame, checkForDraw};
     
 })();
 
-//let button = document.querySelector('#info .row');
+let button = document.querySelector('#info .row');
 
-//button.addEventListener('click', game.start);
-
-game.debugstart();
-
-game.debugMakeMove(8);
-game.debugMakeMove(0);
-game.debugMakeMove(7);
-game.debugMakeMove(1);
-game.debugMakeMove(2);
-game.debugMakeMove(5);
-
-
-game.debugMakeMoveWithComputerNext(3);
-
+button.addEventListener('click', game.start);
