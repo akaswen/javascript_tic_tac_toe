@@ -1,5 +1,9 @@
-require 'sinatra';
+require 'sinatra'
 
-get "/" do
-    erb :index
+class TicTacToe < Sinatra::Base
+
+    get "/" do
+        erb :index
+    end
+
 end
