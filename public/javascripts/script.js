@@ -19,17 +19,17 @@ const Computer = (difficulty) => {
 
     const pickRandomMove = (possibleMoves) => {
         let randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
-        let square = document.getElementById(randomMove.index);
-        return square;
+        return randomMove;
     };
 
     const makeRandomMove = (board) => {
         possibleMoves = getPossibleMoves(board.boardArray);
-        let square = pickRandomMove(possibleMoves);
+        let randomMove = pickRandomMove(possibleMoves);
+        let square = document.getElementById(randomMove.index);
         board.draw(symbol, square);
     };
 
-    const score = (move, boardArray, player, opponent, turn) => {
+    const score = (move, boardArray, player, opponent) => {
         let score = 0;
         boardArray[move.index] = player.symbol;
         
@@ -40,13 +40,21 @@ const Computer = (difficulty) => {
         return score;
     };
 
-    const findBestMove = (boardArray, player, opponent, turn) => {
-        let bestMove;
-        let possibleMoves = getPossibleMoves(boardArray);
+    const sortByScore = (a, b) => {
+        return a.score - b.score;
+    };
 
+    const getBestMoves = (possibleMoves) => {
+        possibleMoves.sort(sortByScore);
+        let best = possibleMoves[possibleMoves.length - 1];
+        let result = possibleMoves.filter(move => move.score === best.score);
+        return result;
+    };
+
+    const scoreEachMove = (possibleMoves, boardArray, player, opponent, turn) => {
         possibleMoves.forEach((move) => {
             let sampleBoard = boardArray.slice(0);
-            move.score += score(move, sampleBoard, player, opponent, i);
+            move.score += score(move, sampleBoard, player, opponent);
 
             for (i = turn + 1; i < 10; i++) {
                 let opponentMove = findBestMove(sampleBoard, opponent, player, i);
@@ -59,28 +67,15 @@ const Computer = (difficulty) => {
                 move.score += nextMove;
             }
         });
+    };
 
-        let randomPossibleMoves = [];
 
-        possibleMoves.forEach((move) => {
-            let randomNumber = Math.random() * 10;
-            if (randomNumber > 5) {
-                randomPossibleMoves.unshift(move);
-            } else {
-                randomPossibleMoves.push(move);
-            }
-        });
-
-        randomPossibleMoves.forEach((move) => {
-            if (!bestMove) {
-                bestMove = move;
-            } else {
-                if (bestMove.score < move.score) {
-                    bestMove = move;
-                }
-            }
-        });
-
+    const findBestMove = (boardArray, player, opponent, turn) => {
+        let bestMove;
+        let possibleMoves = getPossibleMoves(boardArray);
+        scoreEachMove(possibleMoves, boardArray, player, opponent, turn);
+        let bestPossibleMoves = getBestMoves(possibleMoves);
+        bestMove = pickRandomMove(bestPossibleMoves);
         return bestMove;
     };
 
