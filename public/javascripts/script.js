@@ -6,21 +6,9 @@ const Computer = (difficulty) => {
 
     const {name, symbol} = Player('The Computer', 'O');;
 
-    const makeRandomMove = (board) => {
-        possibleMoves = [];
-        board.boardArray.forEach((square, index) => {
-            if (!square) {
-                possibleMoves.push(index);
-            }
-        });
-        let number = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
-        let square = document.getElementById(number);
-        board.draw(symbol, square);
-    };
-
-    const getPossibleMoves = (board) => {
+    const getPossibleMoves = (boardArray) => {
         let possibleMoves = [];
-        board.forEach((square, index) => {
+        boardArray.forEach((square, index) => {
             if (!square) {
                 let move = { index, score: 0 };
                 possibleMoves.push(move);
@@ -29,23 +17,35 @@ const Computer = (difficulty) => {
         return possibleMoves;
     };
 
-    const score = (move, board, player, opponent, turn) => {
+    const pickRandomMove = (possibleMoves) => {
+        let randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
+        let square = document.getElementById(randomMove.index);
+        return square;
+    };
+
+    const makeRandomMove = (board) => {
+        possibleMoves = getPossibleMoves(board.boardArray);
+        let square = pickRandomMove(possibleMoves);
+        board.draw(symbol, square);
+    };
+
+    const score = (move, boardArray, player, opponent, turn) => {
         let score = 0;
-        board[move.index] = player.symbol;
+        boardArray[move.index] = player.symbol;
         
-        if (game.checkEndGame(board)) {
+        if (game.checkEndGame(boardArray)) {
             score += 10;
         }
 
         return score;
     };
 
-    const findBestMove = (board, player, opponent, turn) => {
+    const findBestMove = (boardArray, player, opponent, turn) => {
         let bestMove;
-        let possibleMoves = getPossibleMoves(board);
+        let possibleMoves = getPossibleMoves(boardArray);
 
         possibleMoves.forEach((move) => {
-            let sampleBoard = board.slice(0);
+            let sampleBoard = boardArray.slice(0);
             move.score += score(move, sampleBoard, player, opponent, i);
 
             for (i = turn + 1; i < 10; i++) {
@@ -255,7 +255,6 @@ const game = ( () => {
 
     const makeMove = (e) => {
         let square = e.target;
-        console.log(square.tagName);
         if (square.textContent === "" && !(square.tagName === 'IMG')) {
             let symbol = currentTurn.player.symbol;
             newBoard.draw(symbol, square);
